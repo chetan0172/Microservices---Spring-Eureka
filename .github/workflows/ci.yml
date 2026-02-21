@@ -19,7 +19,8 @@ jobs:
           java-version: '17'
 
       - name: Build and Analyze
-        run: mvn clean verify sonar:sonar \
-          -Dsonar.projectKey=microservices-parent \
-          -Dsonar.host.url=${{ secrets.http://http://3.227.117.10:9000 }} \
-          -Dsonar.login=${{ secrets.squ_e69efc82fa7a344d17177e4ab9728855b1a0b0dc }}
+        run: |
+          mvn clean verify sonar:sonar \
+            -Dsonar.projectKey=microservices-parent \
+            -Dsonar.host.url=${{ secrets.SONAR_HOST_URL }} \
+            -Dsonar.login=${{ secrets.SONAR_TOKEN }}
