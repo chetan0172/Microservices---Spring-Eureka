@@ -1,9 +1,16 @@
 name: CI with SonarQube
 
+name: CI with SonarQube
+
 on:
   push:
-    branches: [ "main" ]
+    branches:
+      - main
+      - 'feature/**'  # This triggers on ANY branch starting with feature/
   pull_request:
+    branches: [ "main" ]
+
+# ... rest of the file ...
 
 jobs:
   build:
