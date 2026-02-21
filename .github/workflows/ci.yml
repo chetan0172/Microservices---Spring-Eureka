@@ -1,16 +1,13 @@
 name: CI with SonarQube
 
-name: CI with SonarQube
-
 on:
   push:
     branches:
       - main
-      - 'feature/**'  # This triggers on ANY branch starting with feature/
+      - 'feature/**'  # Triggers on your feature branch
   pull_request:
-    branches: [ "main" ]
-
-# ... rest of the file ...
+    branches:
+      - main
 
 jobs:
   build:
@@ -19,7 +16,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          fetch-depth: 0  # Required for accurate blame information
+          fetch-depth: 0  # Required for SonarQube analysis
 
       - name: Set up JDK 17
         uses: actions/setup-java@v4
@@ -30,11 +27,11 @@ jobs:
 
       - name: Build and Analyze
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information, if any
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
           SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
         run: |
           mvn -B clean verify sonar:sonar \
             -Dsonar.projectKey=microservices-parent \
-            -Dsonar.host.url=$SONAR_HOST_URL \
-            -Dsonar.login=$SONAR_TOKEN
+            -Dsonar.host.url="$SONAR_HOST_URL" \
+            -Dsonar.login="$SONAR_TOKEN"
