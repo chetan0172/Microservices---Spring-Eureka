@@ -1,9 +1,5 @@
 FROM eclipse-temurin:17-jre-alpine
 
-
-
-RUN addgroup --system appgroup && adduser --system --ingroup appgroup appuser
-
 WORKDIR /app
 
 # Copy JAR built by CI
@@ -11,8 +7,9 @@ COPY target/*.jar app.jar
 
 
 
-RUN addgroup --system appgroup && adduser --system --ingroup appgroup appuser
-RUN appuser
+RUN adduser -D appuser
+
+USER appuser
 
 EXPOSE 8081
 
