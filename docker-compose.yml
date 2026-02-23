@@ -19,13 +19,13 @@ services:
 
   service-registry:
     container_name: service-registry
-    image: yourdockerhub/service-registry:${IMAGE_TAG}
+    image: chetan0172/service-registry:${IMAGE_TAG}
     ports:
       - "8761:8761"
 
   api-gateway:
     container_name: api-gateway
-    image: yourdockerhub/api-gateway:${IMAGE_TAG}
+    image: chetan0172/api-gateway:${IMAGE_TAG}
     ports:
       - "8080:8080"
     depends_on:
@@ -33,7 +33,7 @@ services:
 
   user-service:
     container_name: user-service
-    image: yourdockerhub/user-service:${IMAGE_TAG}
+    image: chetan0172/user-service:${IMAGE_TAG}
     ports:
       - "8081:8081"
     depends_on:
@@ -44,7 +44,7 @@ services:
 
   product-service:
     container_name: product-service
-    image: yourdockerhub/product-service:${IMAGE_TAG}
+    image: chetan0172/product-service:${IMAGE_TAG}
     ports:
       - "8082:8082"
     depends_on:
@@ -55,7 +55,7 @@ services:
 
   order-service:
     container_name: order-service
-    image: yourdockerhub/order-service:${IMAGE_TAG}
+    image: chetan0172/order-service:${IMAGE_TAG}
     ports:
       - "8083:8083"
     depends_on:
