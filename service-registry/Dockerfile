@@ -11,7 +11,7 @@ COPY target/*.jar app.jar
 
 
 RUN addgroup --system appgroup && adduser --system --ingroup appgroup appuser
-RUn appuser
+RUN appuser
 
 EXPOSE 8761
 
