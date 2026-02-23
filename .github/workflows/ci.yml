@@ -1,10 +1,10 @@
-name: CI with SonarQube
+name: CI - Build
 
 on:
   push:
     branches:
       - main
-      - 'feature/**'  # Triggers on your feature branch
+      - 'feature/**'
   pull_request:
     branches:
       - main
@@ -15,23 +15,13 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0  # Required for SonarQube analysis
 
       - name: Set up JDK 17
         uses: actions/setup-java@v4
         with:
-          distribution: 'temurin'
-          java-version: '17'
-          cache: 'maven'
+          distribution: temurin
+          java-version: 17
+          cache: maven
 
-      - name: Build and Analyze
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-          SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
-        run: |
-          mvn -B clean verify sonar:sonar \
-            -Dsonar.projectKey=microservices-parent \
-            -Dsonar.host.url="$SONAR_HOST_URL" \
-            -Dsonar.login="$SONAR_TOKEN"
+      - name: Build & Test
+        run: mvn -B clean verify
