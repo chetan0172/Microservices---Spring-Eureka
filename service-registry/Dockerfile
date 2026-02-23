@@ -16,4 +16,4 @@ COPY --from=builder /app/service-registry/target/service-registry-1.0.0.jar app.
 
 EXPOSE 8761
 
-ENTRYPOINT ["java","-jar","app.jar"]
+ENTRYPOINT ["sh","-c","java $JAVA_OPTS -jar app.jar"]
