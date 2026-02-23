@@ -19,17 +19,13 @@ services:
 
   service-registry:
     container_name: service-registry
-    build:
-      context: ./service-registry
-      dockerfile: Dockerfile
+    image: yourdockerhub/service-registry:${IMAGE_TAG}
     ports:
       - "8761:8761"
 
   api-gateway:
     container_name: api-gateway
-    build:
-      context: ./api-gateway
-      dockerfile: Dockerfile
+    image: yourdockerhub/api-gateway:${IMAGE_TAG}
     ports:
       - "8080:8080"
     depends_on:
@@ -37,9 +33,7 @@ services:
 
   user-service:
     container_name: user-service
-    build:
-      context: ./user-service
-      dockerfile: Dockerfile
+    image: yourdockerhub/user-service:${IMAGE_TAG}
     ports:
       - "8081:8081"
     depends_on:
@@ -50,9 +44,7 @@ services:
 
   product-service:
     container_name: product-service
-    build:
-      context: ./product-service
-      dockerfile: Dockerfile
+    image: yourdockerhub/product-service:${IMAGE_TAG}
     ports:
       - "8082:8082"
     depends_on:
@@ -63,9 +55,7 @@ services:
 
   order-service:
     container_name: order-service
-    build:
-      context: ./order-service
-      dockerfile: Dockerfile
+    image: yourdockerhub/order-service:${IMAGE_TAG}
     ports:
       - "8083:8083"
     depends_on:
