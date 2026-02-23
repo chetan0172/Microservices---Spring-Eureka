@@ -39,6 +39,15 @@ jobs:
 
           for SERVICE in $SERVICES; do
             docker build -t $DOCKER_USER/$SERVICE:$IMAGE_TAG ./$SERVICE
+          
+            # 🔎 Scan image with Trivy BEFORE pushing
+            docker run --rm \
+              -v /var/run/docker.sock:/var/run/docker.sock \
+              aquasec/trivy image \
+              --severity CRITICAL,HIGH \
+              --exit-code 1 \
+              $DOCKER_USER/$SERVICE:$IMAGE_TAG
+
             docker push $DOCKER_USER/$SERVICE:$IMAGE_TAG
 
             # Optional: Only tag latest for dev branch
