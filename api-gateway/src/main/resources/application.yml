@@ -11,20 +11,18 @@ spring:
 
   cloud:
     gateway:
-
-      default-filters:
-        - name: RequestRateLimiter
-          args:
-            key-resolver: "#{@userKeyResolver}"   # 🔥 ADD THIS
-            redis-rate-limiter.replenishRate: 5
-            redis-rate-limiter.burstCapacity: 10
-
       routes:
 
         - id: user-service
           uri: lb://USER-SERVICE
           predicates:
             - Path=/users/**
+          filters:
+            - name: RequestRateLimiter
+              args:
+                key-resolver: "#{@userKeyResolver}"
+                redis-rate-limiter.replenishRate: 5
+                redis-rate-limiter.burstCapacity: 10
 
         - id: product-service
           uri: lb://PRODUCT-SERVICE
