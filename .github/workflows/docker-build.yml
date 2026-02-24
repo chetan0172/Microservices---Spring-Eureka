@@ -44,7 +44,7 @@ jobs:
 
           for SERVICE in $SERVICES; do
             echo "🚀 Building $SERVICE..."
-            docker build -t $DOCKER_USER/$SERVICE:$IMAGE_TAG ./$SERVICE
+            docker build -t $DOCKER_USER/$SERVICE:$IMAGE_TAG -f $SERVICE/Dockerfile .
 
             echo "🔎 Scanning $SERVICE with Trivy..."
             docker run --rm \
