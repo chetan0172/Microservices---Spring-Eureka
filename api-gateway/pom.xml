@@ -7,19 +7,12 @@
     </parent>
 
     <modelVersion>4.0.0</modelVersion>
-
     <artifactId>api-gateway</artifactId>
     <packaging>jar</packaging>
 
     <dependencies>
 
-        <!-- Spring Boot Starter -->
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter</artifactId>
-        </dependency>
-
-        <!-- Spring Cloud Gateway -->
+        <!-- Spring Cloud Gateway (Reactive by default) -->
         <dependency>
             <groupId>org.springframework.cloud</groupId>
             <artifactId>spring-cloud-starter-gateway</artifactId>
@@ -31,7 +24,7 @@
             <artifactId>spring-cloud-starter-netflix-eureka-client</artifactId>
         </dependency>
 
-        <!-- ✅ Redis Reactive (ADDED CORRECTLY HERE) -->
+        <!-- Reactive Redis (REQUIRED for Rate Limiter) -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-data-redis-reactive</artifactId>
