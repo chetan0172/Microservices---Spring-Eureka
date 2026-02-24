@@ -1,6 +1,9 @@
 name: CD - Production Deploy
 
 on:
+  push:
+    branches:
+      - main
   workflow_run:
     workflows: ["CI - Build and Push Docker Images"]
     types:
@@ -8,11 +11,16 @@ on:
 
 jobs:
   deploy:
-    if: ${{ github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.head_branch == 'main' }}
     runs-on: ubuntu-latest
 
-    env:
-      IMAGE_TAG: ${{ github.event.workflow_run.head_sha }}
+    # Only run if:
+    # - direct push to main
+    # OR
+    # - workflow_run completed successfully on main
+    if: |
+      github.event_name == 'push' ||
+      (github.event.workflow_run.conclusion == 'success' &&
+       github.event.workflow_run.head_branch == 'main')
 
     steps:
       - name: Deploy to EC2 via SSH
@@ -24,9 +32,7 @@ jobs:
           script: |
             cd /opt/microservices
 
-            echo "Pulling images with tag ${{ github.event.workflow_run.head_sha }}"
-
-            export IMAGE_TAG=${{ github.event.workflow_run.head_sha }}
+            echo "Pulling latest images..."
 
             docker-compose pull
             docker-compose up -d
