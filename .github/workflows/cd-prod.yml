@@ -1,12 +1,14 @@
 name: CD - Production Deploy
 
 on:
-  push:
-    branches:
-      - main
+  workflow_run:
+    workflows: ["CI - Build and Push Docker Images"]
+    types:
+      - completed
 
 jobs:
   deploy:
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
     runs-on: ubuntu-latest
 
     steps:
@@ -19,17 +21,16 @@ jobs:
           script: |
             cd /opt/microservices
 
-            echo "Pull latest code"
-            git pull origin main
+            echo "Setting IMAGE_TAG from CI build"
+            export IMAGE_TAG=${{ github.event.workflow_run.head_sha }}
 
-            echo "Set IMAGE_TAG"
-            export IMAGE_TAG=${{ github.sha }}
-
-            echo "Pull latest images"
+            echo "Pulling new images"
             docker compose pull
 
-            echo "Ensure Redis is running"
+            echo "Ensuring Redis is running"
             docker compose up -d redis
 
-            echo "Recreate all services with new tag"
+            echo "Recreating containers"
             docker compose up -d --force-recreate
+
+            echo "Deployment completed successfully"
