@@ -39,7 +39,7 @@
 
     </dependencies>
 
-    <build>docker ps
+    <build>
         <plugins>
             <plugin>
                 <groupId>org.springframework.boot</groupId>
