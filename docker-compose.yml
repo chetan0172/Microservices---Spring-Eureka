@@ -87,6 +87,17 @@ services:
     networks:
       - backend
 
+
+  redis:
+    container_name: redis
+    image: redis:7-alpine
+    command: redis-server --appendonly yes
+    mem_limit: 300m
+    cpus: 0.3
+    restart: always
+    networks:
+      - backend
+
 networks:
   backend:
     driver: bridge
