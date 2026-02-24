@@ -1,3 +1,5 @@
+version: "3.8"
+
 services:
 
   mysql:
@@ -7,14 +9,14 @@ services:
     mem_limit: 700m
     cpus: 0.5
     environment:
-      MYSQL_ROOT_PASSWORD: root
+      MYSQL_ROOT_PASSWORD: strong_root_password
       MYSQL_DATABASE: userdb
-    ports:
-      - "3306:3306"
     volumes:
       - mysql-data:/var/lib/mysql
+    networks:
+      - backend
     healthcheck:
-      test: [ "CMD", "mysqladmin", "ping", "-h", "localhost" ]
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
       interval: 5s
       timeout: 5s
       retries: 5
@@ -26,8 +28,8 @@ services:
       - JAVA_OPTS=-Xms256m -Xmx512m
     mem_limit: 600m
     cpus: 0.5
-    ports:
-      - "8761:8761"
+    networks:
+      - backend
 
   api-gateway:
     container_name: api-gateway
@@ -37,9 +39,11 @@ services:
     mem_limit: 600m
     cpus: 0.5
     ports:
-      - "8080:8080"
+      - "127.0.0.1:8080:8080"   # 🔥 Only accessible locally
     depends_on:
       - service-registry
+    networks:
+      - backend
 
   user-service:
     container_name: user-service
@@ -48,13 +52,13 @@ services:
       - JAVA_OPTS=-Xms256m -Xmx512m
     mem_limit: 600m
     cpus: 0.5
-    ports:
-      - "8081:8081"
     depends_on:
       mysql:
         condition: service_healthy
       service-registry:
         condition: service_started
+    networks:
+      - backend
 
   product-service:
     container_name: product-service
@@ -63,13 +67,13 @@ services:
       - JAVA_OPTS=-Xms256m -Xmx512m
     mem_limit: 600m
     cpus: 0.5
-    ports:
-      - "8082:8082"
     depends_on:
       mysql:
         condition: service_healthy
       service-registry:
         condition: service_started
+    networks:
+      - backend
 
   order-service:
     container_name: order-service
@@ -78,10 +82,14 @@ services:
       - JAVA_OPTS=-Xms256m -Xmx512m
     mem_limit: 600m
     cpus: 0.5
-    ports:
-      - "8083:8083"
     depends_on:
       - service-registry
+    networks:
+      - backend
+
+networks:
+  backend:
+    driver: bridge
 
 volumes:
   mysql-data:
