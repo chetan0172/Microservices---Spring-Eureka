@@ -22,10 +22,11 @@ jobs:
           username: ubuntu
           key: ${{ secrets.EC2_SSH_KEY }}
           script: |
-            export IMAGE_TAG=${IMAGE_TAG}
             cd /opt/microservices
 
-            echo "Pulling images with tag $IMAGE_TAG"
+            echo "Pulling images with tag ${{ github.event.workflow_run.head_sha }}"
+
+            export IMAGE_TAG=${{ github.event.workflow_run.head_sha }}
 
             docker-compose pull
             docker-compose up -d
