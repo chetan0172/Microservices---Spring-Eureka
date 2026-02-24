@@ -3,15 +3,11 @@ FROM maven:3.9.6-eclipse-temurin-17 AS build
 
 WORKDIR /app
 
-# Copy pom first (better layer caching)
-COPY pom.xml .
-RUN mvn dependency:go-offline
+# Copy entire project (IMPORTANT for parent POM)
+COPY . .
 
-# Copy source code
-COPY src ./src
-
-# Build jar
-RUN mvn clean package -DskipTests
+# Build only user-service module
+RUN mvn clean package -DskipTests -pl user-service -am
 
 
 # -------- Stage 2: Runtime --------
@@ -19,13 +15,11 @@ FROM eclipse-temurin:17-jre-alpine
 
 WORKDIR /app
 
-# Create non-root user
 RUN addgroup -S appgroup && adduser -S appuser -G appgroup
 
-# Copy jar from build stage
-COPY --from=build /app/target/*.jar app.jar
+# Copy built jar
+COPY --from=build /app/user-service/target/*.jar app.jar
 
-# Set ownership
 RUN chown appuser:appgroup app.jar
 
 USER appuser
