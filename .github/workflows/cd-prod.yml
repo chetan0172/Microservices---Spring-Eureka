@@ -18,7 +18,18 @@ jobs:
           key: ${{ secrets.EC2_SSH_KEY }}
           script: |
             cd /opt/microservices
+
+            echo "Pull latest code"
             git pull origin main
+
+            echo "Set IMAGE_TAG"
             export IMAGE_TAG=${{ github.sha }}
-            docker-compose pull
-            docker-compose up -d --force-recreate
+
+            echo "Pull latest images"
+            docker compose pull
+
+            echo "Ensure Redis is running"
+            docker compose up -d redis
+
+            echo "Recreate all services with new tag"
+            docker compose up -d --force-recreate
