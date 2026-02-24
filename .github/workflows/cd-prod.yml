@@ -18,14 +18,7 @@ jobs:
           key: ${{ secrets.EC2_SSH_KEY }}
           script: |
             cd /opt/microservices
-
+            git pull origin main
             export IMAGE_TAG=${{ github.sha }}
-
-            echo "Using image tag: $IMAGE_TAG"
-
             docker-compose pull
-
-            docker-compose down
             docker-compose up -d --force-recreate
-
-            docker image prune -af
