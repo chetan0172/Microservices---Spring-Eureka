@@ -10,6 +10,10 @@ jobs:
   build:
     runs-on: ubuntu-latest
 
+    permissions:
+      contents: read
+      security-events: write   # Required for SARIF upload
+
     env:
       IMAGE_TAG: ${{ github.sha }}
       DOCKER_USER: ${{ secrets.DOCKERHUB_USERNAME }}
@@ -46,13 +50,16 @@ jobs:
             echo "🚀 Building $SERVICE..."
             docker build -t $DOCKER_USER/$SERVICE:$IMAGE_TAG -f $SERVICE/Dockerfile .
 
-            echo "🔎 Scanning $SERVICE with Trivy..."
+            echo "🔎 Scanning $SERVICE with Trivy (SARIF)..."
             docker run --rm \
               -v /var/run/docker.sock:/var/run/docker.sock \
+              -v $(pwd):/reports \
               aquasec/trivy:latest image \
+              --format sarif \
+              --output /reports/trivy-$SERVICE.sarif \
               --severity CRITICAL,HIGH \
-              --exit-code 0 \
               --ignore-unfixed \
+              --exit-code 0 \
               $DOCKER_USER/$SERVICE:$IMAGE_TAG
 
             echo "📦 Pushing $SERVICE..."
@@ -65,3 +72,16 @@ jobs:
             fi
 
           done
+
+      # 6️⃣ Upload SARIF Results to GitHub Security
+      - name: Upload Trivy SARIF Results
+        uses: github/codeql-action/upload-sarif@v3
+        with:
+          sarif_file: reports/trivy-user-service.sarif
+
+      # 7️⃣ Upload All Reports as Artifact (Downloadable)
+      - name: Upload All Trivy Reports
+        uses: actions/upload-artifact@v4
+        with:
+          name: trivy-reports
+          path: reports/*.sarif
