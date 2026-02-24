@@ -4,23 +4,10 @@ on:
   push:
     branches:
       - main
-  workflow_run:
-    workflows: ["CI - Build and Push Docker Images"]
-    types:
-      - completed
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
-
-    # Only run if:
-    # - direct push to main
-    # OR
-    # - workflow_run completed successfully on main
-    if: |
-      github.event_name == 'push' ||
-      (github.event.workflow_run.conclusion == 'success' &&
-       github.event.workflow_run.head_branch == 'main')
 
     steps:
       - name: Deploy to EC2 via SSH
@@ -30,11 +17,16 @@ jobs:
           username: ubuntu
           key: ${{ secrets.EC2_SSH_KEY }}
           script: |
-            cd /opt/microservices
+            echo "Connected to EC2"
+            pwd
+            whoami
+            ls -la
 
-            echo "Pulling latest images..."
+            cd /opt/microservices
+            pwd
+            ls -la
 
             docker-compose pull
             docker-compose up -d
 
-            docker image prune -af
+            docker ps
