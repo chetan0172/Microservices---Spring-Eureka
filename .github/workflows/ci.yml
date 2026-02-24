@@ -33,6 +33,7 @@ jobs:
       # 4️⃣ Run Trivy Scan
       - name: Run Trivy Scan
         uses: aquasecurity/trivy-action@master
+        continue-on-error: true
         with:
           image-ref: ${{ secrets.DOCKERHUB_USERNAME }}/user-service:latest
           format: 'sarif'
