@@ -21,16 +21,16 @@ jobs:
           script: |
             cd /opt/microservices
 
-            echo "Setting IMAGE_TAG from CI build"
-            export IMAGE_TAG=${{ github.event.workflow_run.head_sha }}
+            echo "Updating IMAGE_TAG"
+            echo "IMAGE_TAG=${{ github.event.workflow_run.head_sha }}" > .env
 
             echo "Pulling new images"
             docker compose pull
 
-            echo "Ensuring Redis is running"
-            docker compose up -d redis
+            echo "Stopping old containers"
+            docker compose down
 
-            echo "Recreating containers"
-            docker compose up -d --force-recreate
+            echo "Starting new containers"
+            docker compose up -d --remove-orphans
 
             echo "Deployment completed successfully"
