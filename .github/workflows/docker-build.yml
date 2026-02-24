@@ -12,7 +12,7 @@ jobs:
 
     permissions:
       contents: read
-      security-events: write   # Required for SARIF upload
+      security-events: write
 
     env:
       IMAGE_TAG: ${{ github.sha }}
@@ -44,16 +44,21 @@ jobs:
       # 5️⃣ Build, Scan & Push Images
       - name: Build, Scan & Push Images
         run: |
+          mkdir -p reports
+
           SERVICES="service-registry api-gateway user-service product-service order-service"
 
           for SERVICE in $SERVICES; do
             echo "🚀 Building $SERVICE..."
-            docker build -t $DOCKER_USER/$SERVICE:$IMAGE_TAG -f $SERVICE/Dockerfile .
+            docker build \
+              -t $DOCKER_USER/$SERVICE:$IMAGE_TAG \
+              -f $SERVICE/Dockerfile \
+              .
 
             echo "🔎 Scanning $SERVICE with Trivy (SARIF)..."
             docker run --rm \
               -v /var/run/docker.sock:/var/run/docker.sock \
-              -v $(pwd):/reports \
+              -v $(pwd)/reports:/reports \
               aquasec/trivy:latest image \
               --format sarif \
               --output /reports/trivy-$SERVICE.sarif \
@@ -65,21 +70,19 @@ jobs:
             echo "📦 Pushing $SERVICE..."
             docker push $DOCKER_USER/$SERVICE:$IMAGE_TAG
 
-            # Tag latest only for dev branch
             if [ "${{ github.ref_name }}" = "dev" ]; then
               docker tag $DOCKER_USER/$SERVICE:$IMAGE_TAG $DOCKER_USER/$SERVICE:latest
               docker push $DOCKER_USER/$SERVICE:latest
             fi
-
           done
 
-      # 6️⃣ Upload SARIF Results to GitHub Security
+      # 6️⃣ Upload ALL SARIF Files to GitHub Security
       - name: Upload Trivy SARIF Results
         uses: github/codeql-action/upload-sarif@v3
         with:
           sarif_file: reports/trivy-user-service.sarif
 
-      # 7️⃣ Upload All Reports as Artifact (Downloadable)
+      # 7️⃣ Upload All Reports as Artifact
       - name: Upload All Trivy Reports
         uses: actions/upload-artifact@v4
         with:
