@@ -17,16 +17,13 @@ jobs:
           username: ubuntu
           key: ${{ secrets.EC2_SSH_KEY }}
           script: |
-            echo "Connected to EC2"
-            pwd
-            whoami
-            ls -la
-
             cd /opt/microservices
-            pwd
-            ls -la
+
+            export IMAGE_TAG=${{ github.sha }}
+
+            echo "Using image tag: $IMAGE_TAG"
 
             docker-compose pull
             docker-compose up -d
 
-            docker ps
+            docker image prune -af
