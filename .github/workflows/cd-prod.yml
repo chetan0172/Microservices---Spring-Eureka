@@ -8,7 +8,8 @@ on:
 
 jobs:
   deploy:
-    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    # 🛑 GUARDRAIL: Only run if CI succeeded AND the branch was 'main'
+    if: ${{ github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.head_branch == 'main' }}
     runs-on: ubuntu-latest
 
     steps:
@@ -18,9 +19,20 @@ jobs:
           host: ${{ secrets.EC2_HOST }}
           username: ${{ secrets.EC2_USER }}
           key: ${{ secrets.EC2_SSH_KEY }}
+          debug: true  # Enable detailed SSH logs for troubleshooting
           script: |
             echo "🚀 Starting Deployment..."
             cd /opt/microservices
+
+            # 1️⃣ Export the tag so docker-compose knows what to pull
+            export IMAGE_TAG=latest
+
+            # 2️⃣ Fix the localhost binding issue automatically
+            # This replaces "127.0.0.1:8080:8080" with "8080:8080" to allow public access
+            if grep -q "127.0.0.1:8080:8080" docker-compose.yml; then
+              echo "🔧 Fixing API Gateway port binding..."
+              sed -i 's/127.0.0.1:8080:8080/8080:8080/g' docker-compose.yml
+            fi
 
             echo "📦 Pulling latest images..."
             docker-compose pull

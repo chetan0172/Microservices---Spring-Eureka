@@ -50,6 +50,7 @@ jobs:
           for SERVICE in $SERVICES; do
             echo "🚀 Building $SERVICE..."
 
+            # Build with SHA tag first
             docker build \
               -t $DOCKER_USER/$SERVICE:$IMAGE_TAG \
               -f $SERVICE/Dockerfile \
@@ -67,13 +68,16 @@ jobs:
             echo "📦 Pushing SHA tag..."
             docker push $DOCKER_USER/$SERVICE:$IMAGE_TAG
 
-            # Tag based on branch
+            # Tag & Push 'dev' if on dev branch
             if [ "${{ github.ref_name }}" = "dev" ]; then
+              echo "🏷️ Tagging as dev..."
               docker tag $DOCKER_USER/$SERVICE:$IMAGE_TAG $DOCKER_USER/$SERVICE:dev
               docker push $DOCKER_USER/$SERVICE:dev
             fi
 
+            # Tag & Push 'latest' if on main branch
             if [ "${{ github.ref_name }}" = "main" ]; then
+              echo "🏷️ Tagging as latest..."
               docker tag $DOCKER_USER/$SERVICE:$IMAGE_TAG $DOCKER_USER/$SERVICE:latest
               docker push $DOCKER_USER/$SERVICE:latest
             fi
