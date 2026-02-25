@@ -42,6 +42,7 @@ jobs:
           password: ${{ secrets.DOCKERHUB_PASSWORD }}
 
       # 5️⃣ Build, Scan & Push Images
+      # 5️⃣ Build, Scan & Push Images
       - name: Build, Scan & Push Images
         run: |
           mkdir -p reports
@@ -54,6 +55,16 @@ jobs:
               -t $DOCKER_USER/$SERVICE:$IMAGE_TAG \
               -f $SERVICE/Dockerfile \
               .
+
+            echo "📦 Pushing SHA tag..."
+            docker push $DOCKER_USER/$SERVICE:$IMAGE_TAG
+
+            if [ "${{ github.ref_name }}" = "main" ]; then
+              echo "📦 Tagging and pushing latest..."
+              docker tag $DOCKER_USER/$SERVICE:$IMAGE_TAG $DOCKER_USER/$SERVICE:latest
+              docker push $DOCKER_USER/$SERVICE:latest
+            fi
+          done
 
             echo "🔎 Scanning $SERVICE with Trivy (SARIF)..."
             docker run --rm \

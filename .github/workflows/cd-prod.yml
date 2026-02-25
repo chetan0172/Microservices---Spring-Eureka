@@ -1,16 +1,17 @@
 name: CD - Deploy to Production (EC2)
 
 on:
-  push:
-    branches:
-      - main
+  workflow_run:
+    workflows: ["CI - Build and Push Docker Images"]
+    types:
+      - completed
 
 jobs:
   deploy:
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
     runs-on: ubuntu-latest
 
     steps:
-      # 1️⃣ Deploy to EC2 via SSH
       - name: Deploy to EC2
         uses: appleboy/ssh-action@v1.0.3
         with:
@@ -19,20 +20,11 @@ jobs:
           key: ${{ secrets.EC2_SSH_KEY }}
           script: |
             echo "🚀 Starting Production Deployment..."
-
-            # Go to your project directory
             cd /opt/microservices
 
-            echo "📦 Pulling latest Docker images..."
             docker-compose pull
+            docker-compose up -d --remove-orphans
 
-            echo "🛑 Stopping existing containers..."
-            docker-compose down
-
-            echo "▶️ Starting updated containers..."
-            docker-compose up -d
-
-            echo "🧹 Cleaning unused images..."
             docker image prune -f
 
             echo "✅ Deployment Completed Successfully!"
