@@ -2,7 +2,7 @@ name: CD - Deploy to Production (EC2)
 
 on:
   workflow_run:
-    workflows: ["CI - Build and Push Docker Images"]
+    workflows: ["CI - Build, Scan & Push Docker Images"]
     types:
       - completed
 
@@ -19,12 +19,16 @@ jobs:
           username: ${{ secrets.EC2_USER }}
           key: ${{ secrets.EC2_SSH_KEY }}
           script: |
-            echo "🚀 Starting Production Deployment..."
+            echo "🚀 Starting Deployment..."
             cd /opt/microservices
 
+            echo "📦 Pulling latest images..."
             docker-compose pull
+
+            echo "🔄 Restarting services..."
             docker-compose up -d --remove-orphans
 
+            echo "🧹 Cleaning unused images..."
             docker image prune -f
 
-            echo "✅ Deployment Completed Successfully!"
+            echo "✅ Deployment Completed!"
